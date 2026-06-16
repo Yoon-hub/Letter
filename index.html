@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>To. 공쥬</title>
+  <style>
+    :root {
+      --bg1: #fff6f9;
+      --bg2: #ffe8f0;
+      --paper: #fffefb;
+      --ink: #3d2c34;
+      --accent: #ff6fa5;
+      --line: #f2dce4;
+      --shadow: 0 16px 40px rgba(85, 33, 58, 0.16);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: "Apple SD Gothic Neo", "Noto Sans KR", -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at 20% 0%, #ffe9f2 0%, transparent 45%),
+                  radial-gradient(circle at 80% 100%, #ffdbe9 0%, transparent 40%),
+                  linear-gradient(180deg, var(--bg1), var(--bg2));
+      overflow-x: hidden;
+    }
+
+    .sparkles::before,
+    .sparkles::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,.95) 0 1.5px, transparent 2px),
+        radial-gradient(circle, rgba(255,255,255,.85) 0 1px, transparent 1.5px);
+      background-size: 140px 140px, 90px 90px;
+      background-position: 0 0, 20px 35px;
+      opacity: .35;
+      animation: floatBg 16s linear infinite;
+    }
+
+    .sparkles::after {
+      opacity: .2;
+      animation-duration: 24s;
+      animation-direction: reverse;
+    }
+
+    .envelope-wrap {
+      width: min(860px, 100%);
+      position: relative;
+      animation: fadeInUp .9s ease both;
+    }
+
+    .lock-box {
+      width: 92%;
+      margin: 0 auto 12px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lock-input {
+      width: min(280px, 70%);
+      height: 42px;
+      border: 1px solid #e5b6c9;
+      border-radius: 10px;
+      padding: 0 12px;
+      font-size: 15px;
+      outline: none;
+      background: #fff9fc;
+      color: #6b2f49;
+    }
+
+    .lock-input:focus {
+      border-color: #d16f95;
+      box-shadow: 0 0 0 3px rgba(255, 111, 165, 0.12);
+    }
+
+    .envelope {
+      width: 92%;
+      height: 56px;
+      margin: 0 auto;
+      border: 0;
+      border-radius: 16px;
+      background: linear-gradient(90deg, #ffd2e2, #ffbdd4);
+      box-shadow: var(--shadow);
+      animation: flapBounce 2.2s ease-in-out infinite;
+      transform-origin: bottom center;
+      cursor: pointer;
+      color: #7c3451;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: .3px;
+      transition: transform .35s ease, box-shadow .35s ease, opacity .2s ease;
+    }
+
+    .letter {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: clamp(20px, 4vw, 40px);
+      overflow: hidden;
+      position: relative;
+      max-height: 0;
+      opacity: 0;
+      transform: translateY(-16px) scale(.98);
+      transition: max-height .9s ease, opacity .45s ease, transform .55s ease, margin-top .45s ease;
+      margin-top: -8px;
+    }
+
+    .letter::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(to bottom, transparent 35px, rgba(242, 220, 228, .6) 36px);
+      background-size: 100% 36px;
+      opacity: .55;
+      pointer-events: none;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      line-height: 1.95;
+      font-size: clamp(16px, 2.05vw, 18px);
+      white-space: pre-line;
+      word-break: keep-all;
+    }
+
+    .hint {
+      text-align: center;
+      font-size: 14px;
+      color: #9e5a74;
+      margin: 12px 0 0;
+      opacity: .95;
+      transition: opacity .25s ease;
+    }
+
+    .hint.error {
+      color: #c13761;
+      font-weight: 700;
+    }
+
+    .envelope-wrap.open .letter {
+      max-height: 1600px;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      margin-top: 10px;
+    }
+
+    .envelope-wrap.open .envelope {
+      animation: none;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(85, 33, 58, 0.13);
+    }
+
+    .envelope-wrap.open .hint {
+      opacity: 0;
+    }
+
+    .to {
+      color: #cf4f7f;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: .4px;
+      animation: textGlow 2s ease-in-out infinite alternate;
+    }
+
+    .sign {
+      margin-top: 24px;
+      text-align: right;
+      color: #8a3f5c;
+      font-weight: 700;
+    }
+
+    .heart {
+      display: inline-block;
+      margin-left: 6px;
+      color: var(--accent);
+      animation: heartBeat 1.2s ease infinite;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes flapBounce {
+      0%, 100% { transform: rotateX(0deg); }
+      50% { transform: rotateX(10deg); }
+    }
+
+    @keyframes heartBeat {
+      0%, 100% { transform: scale(1); }
+      25% { transform: scale(1.18); }
+      45% { transform: scale(0.98); }
+      65% { transform: scale(1.12); }
+    }
+
+    @keyframes textGlow {
+      from { text-shadow: 0 0 0 rgba(255, 111, 165, 0); }
+      to { text-shadow: 0 0 12px rgba(255, 111, 165, 0.25); }
+    }
+
+    @keyframes floatBg {
+      from { transform: translateY(0); }
+      to { transform: translateY(-140px); }
+    }
+  </style>
+</head>
+<body class="sparkles">
+  <main class="envelope-wrap" id="letterWrap">
+    <div class="lock-box">
+      <input class="lock-input" id="codeInput" type="password" inputmode="numeric" placeholder="비밀번호 8자리 입력" maxlength="8" />
+    </div>
+    <button class="envelope" id="openLetterBtn" aria-expanded="false" aria-controls="birthdayLetter">봉투 열기 💌</button>
+    <p class="hint" id="openHint">비밀번호를 입력하고 봉투를 눌러줘</p>
+    <article class="letter" id="birthdayLetter" aria-label="생일 편지">
+      <div class="content">
+        <div class="to">To. 공쥬</div>
+안녕 공쥬 우리가 만난지도 벌써 300일이라는 시간이 다 되가네 짧다면 짧은 시간이고 길다면 긴 시간이지만, 밀도로 따지자면 정말 밀도있는 시간 들이였다구 생각해!
+항상 보고싶어..
+공쥬랑 함께하는 시간은 뭘해도 다 잼있는 것 같아 같이 야구를 보는 것도 밥을 먹는 것도 드라이브를 하는 것도 그냥 침대에 누워서 선풍기 바람 쌔는 것도 평범한 일상들이 더 특별하게 느껴지는 것 같아서 하루하루 행복함을 느끼고 있어! 고마워, 그리구 요즘 공쥬 미모가 전성기야 요롷게 보면 이쁘고 죠롷게 보면 너무 귀여워 침대에 누워서 공쥬 볼따구 보는게 극락인데 진짜! 잡아 먹고 싶은 기분이 너무 많이 들어서 힘들어
+
+앞으로도 이렇게 사이좋게 지냈으면 좋겠어 오빠가 속상하게 행동해두 착한 공쥬가 너그럽게 봐줬으면 좋겠오ㅠ 그리구 속상한일 있으면 바로바로 말해줘! 나두 병원 생활 때문에 공쥬 힘드니까 최대한 챙겨주려구 노력할게!
+그리구 병원 힘들면 언제든지 오빠한테 속상한거 힘든거 다 이야기 해죠! 위로하구 같이 욕해줄게! 그만두고 싶으면 오빠가 먹여 살릴테니까 걱정하지마! 나한테는 이제 세상에서 제일 소중한 사람이니까 다른 곳에 이직 한다구 한다면 뒷바라지 확실하게 해줄게!
+
+26번째 생일 진심으로 축하해 재은아, 앞으로 남은 생일도 내가 다 챙겨줄 수 있으면 좋겠다.
+오늘 하루도 같이 행복하게 보내자 제발 롯데야 생일 기념으로 이겨줘...
+
+        <div class="sign">공쥬를 많이 많이 사랑하는 윤제가<span class="heart">♥</span></div>
+      </div>
+    </article>
+  </main>
+  <script>
+    (function () {
+      var wrap = document.getElementById("letterWrap");
+      var button = document.getElementById("openLetterBtn");
+      var codeInput = document.getElementById("codeInput");
+      var hint = document.getElementById("openHint");
+      var passcode = "20250901";
+      var unlocked = false;
+      if (!wrap || !button || !codeInput || !hint) return;
+
+      codeInput.addEventListener("input", function () {
+        hint.classList.remove("error");
+      });
+
+      button.addEventListener("click", function () {
+        if (!unlocked) {
+          if (codeInput.value !== passcode) {
+            hint.classList.add("error");
+            hint.textContent = "비밀번호가 틀렸어. 다시 입력해줘.";
+            codeInput.focus();
+            return;
+          }
+          unlocked = true;
+          codeInput.disabled = true;
+          hint.classList.remove("error");
+          hint.textContent = "비밀번호 확인 완료. 편지를 열었어 💗";
+        }
+        var isOpen = wrap.classList.toggle("open");
+        button.setAttribute("aria-expanded", String(isOpen));
+        button.textContent = isOpen ? "편지 읽는 중... 💗" : "봉투 열기 💌";
+      });
+    })();
+  </script>
+</body>
+</html>
