@@ -174,8 +174,46 @@
       z-index: 1;
       line-height: 1.95;
       font-size: clamp(16px, 2.05vw, 18px);
-      white-space: pre-line;
       word-break: keep-all;
+    }
+
+    .letter-body {
+      min-height: 120px;
+    }
+
+    .typing-line {
+      margin: 0 0 14px;
+      opacity: 0;
+      transition: opacity .25s ease;
+    }
+
+    .typing-line.visible {
+      opacity: 1;
+    }
+
+    .typing-line.typing-active::after {
+      content: "▍";
+      display: inline-block;
+      margin-left: 2px;
+      color: var(--accent);
+      animation: cursorBlink .75s step-end infinite;
+    }
+
+    .typing-line.done {
+      opacity: 1;
+    }
+
+    .sign {
+      margin-top: 24px;
+      text-align: right;
+      color: #8a3f5c;
+      font-weight: 700;
+      opacity: 0;
+      transition: opacity .6s ease;
+    }
+
+    .sign.visible {
+      opacity: 1;
     }
 
     .hint {
@@ -218,13 +256,6 @@
       animation: textGlow 2s ease-in-out infinite alternate;
     }
 
-    .sign {
-      margin-top: 24px;
-      text-align: right;
-      color: #8a3f5c;
-      font-weight: 700;
-    }
-
     .heart {
       display: inline-block;
       margin-left: 6px;
@@ -255,6 +286,39 @@
 
     .music-btn.playing {
       animation: musicPulse 1.4s ease-in-out infinite;
+    }
+
+    .fall-particle {
+      position: fixed;
+      top: -24px;
+      z-index: 5;
+      pointer-events: none;
+      font-size: clamp(12px, 3vw, 16px);
+      color: rgba(255, 111, 165, 0.75);
+      text-shadow: 0 0 8px rgba(255, 180, 210, 0.5);
+      animation: particleFall linear forwards;
+      will-change: transform, opacity;
+    }
+
+    .fall-particle.star {
+      color: rgba(255, 200, 120, 0.85);
+      text-shadow: 0 0 8px rgba(255, 220, 160, 0.45);
+    }
+
+    @keyframes cursorBlink {
+      50% { opacity: 0; }
+    }
+
+    @keyframes particleFall {
+      0% {
+        transform: translateY(0) rotate(0deg) scale(1);
+        opacity: 0;
+      }
+      8% { opacity: 0.85; }
+      100% {
+        transform: translateY(105vh) rotate(280deg) scale(0.6);
+        opacity: 0;
+      }
     }
 
     @keyframes musicPulse {
@@ -302,17 +366,8 @@
     <article class="letter" id="birthdayLetter" aria-label="생일 편지">
       <div class="content">
         <div class="to">To. 이뿌니</div>
-안녕 공쥬 우리가 만난지도 벌써 300일이라는 시간이 다 되가네 짧다면 짧은 시간이고 길다면 긴 시간이지만, 밀도로 따지자면 정말 밀도있는 시간 들이였다구 생각해! 밀도 있는 시간을 보낸만큼 사랑하는 마음도 커진 것 같아
-공쥬랑 함께하는 시간은 뭘해도 다 재미있는 것 같아 같이 야구를 보는 것도 밥을 먹는 것도 드라이브를 하는 것도 그냥 침대에 누워서 선풍기 바람 쌔는 것도 평범한 일상들이 더 특별하게 느껴지는 것 같아서 하루하루 행복함을 느끼고 있어! 고마워, 그리구 요즘 공쥬 미모가 전성기야 요롷게 보면 이쁘고 죠롷게 보면 너무 귀여워 침대에 누워서 공쥬 볼따구 보는게 너무 좋아! 잡아 먹고 싶은 기분이 너무 많이 들어서 힘들어😭
-
-앞으로도 이렇게 사이좋게 지냈으면 좋겠어 오빠가 속상하게 행동해두 착한 공쥬가 너그럽게 봐줬으면 좋겠오ㅠ 그리구 속상한일 있으면 바로바로 말해줘! 나두 병원 생활 때문에 공쥬 힘드니까 최대한 챙겨주려구 노력할게!
-그리구 병원 힘들면 언제든지 오빠한테 속상한거 힘든거 다 이야기 해죠! 위로하구 같이 욕해줄게! 그만두고 싶으면 오빠가 먹여 살릴테니까 걱정하지마! 나한테는 이제 세상에서 제일 소중한 사람이니까 다른 곳에 이직 한다구 한다면 뒷바라지 확실하게 해줄게!
-나는 공쥬가 어떤 선택을 하든 항상 응원할거야 😀
-
-26번째 생일 진심으로 축하해 재은아, 앞으로도 잘 부탁하고 27번쨰, 28번째 ... 100번째 생일까지 옆에서 제일 먼저 축하해줄게 🥳
-오늘 하루도 같이 즐겁게 보냈겠지? 롯데야.. 오늘은 이겨야 한다 진짜루..
-
-        <div class="sign">공쥬를 많이 많이 사랑하는 윤제가<span class="heart">♥</span></div>
+        <div class="letter-body" id="letterBody" aria-live="polite"></div>
+        <div class="sign" id="letterSign">공쥬를 많이 많이 사랑하는 윤제가<span class="heart">♥</span></div>
       </div>
     </article>
   </main>
@@ -331,10 +386,150 @@
       var hint = document.getElementById("openHint");
       var bgm = document.getElementById("bgm");
       var musicBtn = document.getElementById("musicBtn");
+      var letterBody = document.getElementById("letterBody");
+      var letterSign = document.getElementById("letterSign");
       var passcode = "20250901";
       var unlocked = false;
       var musicStarted = false;
-      if (!wrap || !button || !codeInput || !hint) return;
+      var typingDone = false;
+      var typingRunning = false;
+      var hasTypedOnce = false;
+      var typingTimer = null;
+      var lastScrollY = 0;
+      var scrollCooldown = false;
+
+      var letterParagraphs = [
+        "안녕 공쥬 우리가 만난지도 벌써 300일이라는 시간이 다 되가네 짧다면 짧은 시간이고 길다면 긴 시간이지만, 밀도로 따지자면 정말 밀도있는 시간 들이였다구 생각해! 밀도 있는 시간을 보낸만큼 사랑하는 마음도 커진 것 같아",
+        "공쥬랑 함께하는 시간은 뭘해도 다 재미있는 것 같아 같이 야구를 보는 것도 밥을 먹는 것도 드라이브를 하는 것도 그냥 침대에 누워서 선풍기 바람 쌔는 것도 평범한 일상들이 더 특별하게 느껴지는 것 같아서 하루하루 행복함을 느끼고 있어! 고마워, 그리구 요즘 공쥬 미모가 전성기야 요롷게 보면 이쁘고 죠롷게 보면 너무 귀여워 침대에 누워서 공쥬 볼따구 보는게 너무 좋아! 잡아 먹고 싶은 기분이 너무 많이 들어서 힘들어😭",
+        "앞으로도 이렇게 사이좋게 지냈으면 좋겠어 오빠가 속상하게 행동해두 착한 공쥬가 너그럽게 봐줬으면 좋겠오ㅠ 그리구 속상한일 있으면 바로바로 말해줘! 나두 병원 생활 때문에 공쥬 힘드니까 최대한 챙겨주려구 노력할게!",
+        "그리구 병원 힘들면 언제든지 오빠한테 속상한거 힘든거 다 이야기 해죠! 위로하구 같이 욕해줄게! 그만두고 싶으면 오빠가 먹여 살릴테니까 걱정하지마! 나한테는 이제 세상에서 제일 소중한 사람이니까 다른 곳에 이직 한다구 한다면 뒷바라지 확실하게 해줄게!",
+        "나는 공쥬가 어떤 선택을 하든 항상 응원할거야 😀",
+        "26번째 생일 진심으로 축하해 재은아, 앞으로도 잘 부탁하고 27번쨰, 28번째 ... 100번째 생일까지 옆에서 제일 먼저 축하해줄게 🥳",
+        "오늘 하루도 같이 즐겁게 보냈겠지? 롯데야.. 오늘은 이겨야 한다 진짜루.."
+      ];
+
+      if (!wrap || !button || !codeInput || !hint || !letterBody) return;
+
+      function delay(ms) {
+        return new Promise(function (resolve) {
+          setTimeout(resolve, ms);
+        });
+      }
+
+      function stopTypingTimer() {
+        if (typingTimer) {
+          clearInterval(typingTimer);
+          typingTimer = null;
+        }
+      }
+
+      function typeParagraph(element, text) {
+        var step = text.length > 120 ? 3 : 2;
+        var tick = text.length > 120 ? 10 : 14;
+
+        return new Promise(function (resolve) {
+          var index = 0;
+          element.classList.add("visible", "typing-active");
+          element.textContent = "";
+
+          typingTimer = setInterval(function () {
+            if (index >= text.length) {
+              stopTypingTimer();
+              element.classList.remove("typing-active");
+              element.classList.add("done");
+              resolve();
+              return;
+            }
+            element.textContent += text.slice(index, index + step);
+            index += step;
+          }, tick);
+        });
+      }
+
+      function showLetterInstantly() {
+        letterBody.innerHTML = "";
+        letterParagraphs.forEach(function (text) {
+          var line = document.createElement("p");
+          line.className = "typing-line done visible";
+          line.textContent = text;
+          letterBody.appendChild(line);
+        });
+        if (letterSign) {
+          letterSign.classList.add("visible");
+        }
+        typingDone = true;
+      }
+
+      function resetLetterView() {
+        stopTypingTimer();
+        typingRunning = false;
+        if (letterSign) {
+          letterSign.classList.remove("visible");
+        }
+      }
+
+      async function startTyping() {
+        if (typingRunning || hasTypedOnce) return;
+        typingRunning = true;
+        typingDone = false;
+        letterBody.innerHTML = "";
+
+        for (var i = 0; i < letterParagraphs.length; i++) {
+          if (!wrap.classList.contains("open")) {
+            typingRunning = false;
+            return;
+          }
+          var line = document.createElement("p");
+          line.className = "typing-line";
+          letterBody.appendChild(line);
+          await typeParagraph(line, letterParagraphs[i]);
+          await delay(180);
+        }
+
+        if (letterSign) {
+          letterSign.classList.add("visible");
+        }
+        typingDone = true;
+        typingRunning = false;
+        hasTypedOnce = true;
+      }
+
+      function spawnFallParticles(count) {
+        var symbols = [
+          { text: "♥", star: false },
+          { text: "♡", star: false },
+          { text: "✦", star: true },
+          { text: "✧", star: true }
+        ];
+
+        for (var i = 0; i < count; i++) {
+          var item = symbols[Math.floor(Math.random() * symbols.length)];
+          var particle = document.createElement("span");
+          particle.className = "fall-particle" + (item.star ? " star" : "");
+          particle.textContent = item.text;
+          particle.style.left = (8 + Math.random() * 84) + "vw";
+          particle.style.animationDuration = (2.4 + Math.random() * 1.4) + "s";
+          particle.style.animationDelay = (Math.random() * 0.25) + "s";
+          document.body.appendChild(particle);
+          particle.addEventListener("animationend", function () {
+            particle.remove();
+          });
+        }
+      }
+
+      window.addEventListener("scroll", function () {
+        if (!wrap.classList.contains("open") || !typingDone) return;
+
+        var currentY = window.scrollY || window.pageYOffset;
+        if (currentY > lastScrollY + 28 && !scrollCooldown) {
+          spawnFallParticles(2 + Math.floor(Math.random() * 2));
+          scrollCooldown = true;
+          setTimeout(function () {
+            scrollCooldown = false;
+          }, 500);
+        }
+        lastScrollY = currentY;
+      }, { passive: true });
 
       function setMusicPlaying(isPlaying) {
         if (!musicBtn) return;
@@ -396,6 +591,24 @@
 
         if (isOpen && !musicStarted) {
           playMusic();
+        }
+
+        if (isOpen) {
+          if (hasTypedOnce) {
+            showLetterInstantly();
+          } else {
+            setTimeout(function () {
+              startTyping();
+            }, 350);
+          }
+        } else {
+          if (typingRunning) {
+            stopTypingTimer();
+            showLetterInstantly();
+            hasTypedOnce = true;
+            typingRunning = false;
+          }
+          resetLetterView();
         }
       });
     })();
