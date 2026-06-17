@@ -397,6 +397,7 @@
       var typingTimer = null;
       var lastScrollY = 0;
       var scrollCooldown = false;
+      var ambientFallTimer = null;
 
       var letterParagraphs = [
         "안녕 공쥬 우리가 만난지도 벌써 300일이라는 시간이 다 되가네 짧다면 짧은 시간이고 길다면 긴 시간이지만, 밀도로 따지자면 정말 밀도있는 시간 들이였다구 생각해! 밀도 있는 시간을 보낸만큼 사랑하는 마음도 커진 것 같아",
@@ -517,6 +518,20 @@
         }
       }
 
+      function startAmbientParticles() {
+        if (ambientFallTimer) return;
+        ambientFallTimer = setInterval(function () {
+          if (document.hidden) return;
+          spawnFallParticles(1 + Math.floor(Math.random() * 2));
+        }, 2200);
+      }
+
+      function stopAmbientParticles() {
+        if (!ambientFallTimer) return;
+        clearInterval(ambientFallTimer);
+        ambientFallTimer = null;
+      }
+
       window.addEventListener("scroll", function () {
         if (!wrap.classList.contains("open") || !typingDone) return;
 
@@ -530,6 +545,14 @@
         }
         lastScrollY = currentY;
       }, { passive: true });
+
+      document.addEventListener("visibilitychange", function () {
+        if (document.hidden) {
+          stopAmbientParticles();
+        } else {
+          startAmbientParticles();
+        }
+      });
 
       function setMusicPlaying(isPlaying) {
         if (!musicBtn) return;
@@ -568,6 +591,8 @@
       codeInput.addEventListener("input", function () {
         hint.classList.remove("error");
       });
+
+      startAmbientParticles();
 
       button.addEventListener("click", function () {
         if (!unlocked) {
